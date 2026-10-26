@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#0B1F4B">
+<meta name="description" content="CurrencyFlow - a simple currency converter for NGN, USD, GBP and EUR. Uses illustrative sample rates, not live market rates.">
+<title>CurrencyFlow</title>
+<style>
+  :root {
+    --navy: #0B1F4B;
+    --navy-light: #102B63;
+    --navy-lighter: #16377D;
+    --blue: #2F6BFF;
+    --blue-dark: #2459DB;
+    --blue-darker: #1B49B8;
+    --soft-blue: #EAF0FF;
+    --soft-blue-dark: #D6E3FF;
+    --light-blue-text: #8FB0FF;
+    --white: #FFFFFF;
+    --page: #F2F5FA;
+    --border: #DCE3EF;
+    --muted: #6B7A99;
+    --error: #D64550;
+    --placeholder-on-navy: #6F8AC4;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    background: var(--page);
+    color: var(--navy);
+    font-family: "Segoe UI", system-ui, -apple-system, "SF Pro Display", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* ---------- header ---------- */
+  header {
+    position: relative;
+    overflow: hidden;
+    background: var(--navy);
+    color: var(--white);
+    padding: 0 24px;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header::before, header::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  header::before { width: 280px; height: 250px; right: -50px; top: -130px; background: var(--navy-light); }
+  header::after  { width: 220px; height: 182px; right: -100px; top: 8px; background: var(--navy-lighter); }
+  .brand { position: relative; z-index: 1; display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--blue);
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 19px;
+  }
+  .brand-name { font-size: 21px; font-weight: 700; letter-spacing: .1px; }
+  .brand-name span { color: var(--light-blue-text); }
+  .tag {
+    position: relative; z-index: 1;
+    font-size: 10px; font-weight: 700; letter-spacing: .8px;
+    color: var(--light-blue-text);
+  }
+
+  /* ---------- main card ---------- */
+  main {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    padding: 28px 16px;
+  }
+  .card {
+    width: min(580px, 100%);
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 1px 2px rgba(11, 31, 75, .04), 0 12px 32px rgba(11, 31, 75, .08);
+  }
+  label, .label {
+    display: block;
+    font-size: 11px; font-weight: 700; letter-spacing: .6px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .field {
+    margin-top: 6px;
+    display: flex; align-items: center;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(47, 107, 255, .18); }
+  .field.invalid { border-color: var(--error); box-shadow: 0 0 0 3px rgba(214, 69, 80, .15); }
+  .amount-field { padding: 0 16px; margin-bottom: 18px; }
+  .amount-field input {
+    flex: 1; min-width: 0;
+    border: 0; outline: 0; background: transparent;
+    font: inherit; font-size: 24px; font-weight: 700; color: var(--navy);
+    padding: 14px 0;
+  }
+  .amount-field input::placeholder { color: #B3BDD3; font-weight: 600; }
+  .amount-code { font-size: 14px; font-weight: 700; color: var(--blue); padding-left: 10px; }
+
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    column-gap: 12px;
+    align-items: end;
+  }
+  .select-wrap { position: relative; }
+  select {
+    width: 100%;
+    appearance: none; -webkit-appearance: none;
+    border: 0; outline: 0; background: transparent;
+    font: inherit; font-size: 15px; font-weight: 500; color: var(--navy);
+    padding: 14px 40px 14px 14px;
+    cursor: pointer;
+    border-radius: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%232F6BFF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+  .swap {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--white);
+    display: grid; place-items: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background .15s, border-color .15s, transform .35s;
+  }
+  .swap:hover { background: var(--soft-blue); border-color: var(--blue); }
+  .swap:focus-visible, .btn:focus-visible { outline: 3px solid rgba(47, 107, 255, .4); outline-offset: 2px; }
+  .swap.spin { transform: rotate(180deg); }
+
+  .error {
+    min-height: 20px;
+    margin: 10px 0;
+    color: var(--error);
+    font-size: 13px; font-weight: 700;
+  }
+
+  .actions { display: flex; gap: 12px; margin-bottom: 18px; }
+  .btn {
+    height: 52px;
+    border-radius: 14px;
+    font: inherit; font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    transition: background .15s, transform .08s, border-color .15s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { flex: 1; background: var(--blue); color: var(--white); border: 1px solid var(--blue); }
+  .btn-primary:hover { background: var(--blue-dark); border-color: var(--blue-dark); }
+  .btn-primary:active { background: var(--blue-darker); }
+  .btn-secondary { width: 120px; background: var(--white); color: var(--navy); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--soft-blue); }
+  .btn-secondary:active { background: var(--soft-blue-dark); }
+
+  .result {
+    background: var(--navy);
+    border-radius: 20px;
+    padding: 18px 24px;
+  }
+  .result-caption { font-size: 10px; font-weight: 700; letter-spacing: .7px; color: var(--light-blue-text); text-transform: uppercase; }
+  .result-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: 4px 0 2px; }
+  .result-amount {
+    font-size: clamp(30px, 9vw, 44px);
+    font-weight: 700;
+    color: var(--placeholder-on-navy);
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+  }
+  .result-amount.ready { color: var(--white); }
+  .result-code { font-size: 20px; font-weight: 700; color: var(--light-blue-text); }
+  .result-rate { font-size: 13px; color: var(--light-blue-text); }
+
+  .note {
+    margin: 18px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--muted); line-height: 1.5;
+  }
+
+  /* ---------- footer ---------- */
+  footer {
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 12px 16px;
+    font-size: 11px; color: var(--muted);
+  }
+
+  /* ---------- small screens ---------- */
+  @media (max-width: 520px) {
+    header { padding: 0 16px; }
+    .card { padding: 22px 18px; border-radius: 20px; }
+    .pair { grid-template-columns: 1fr; row-gap: 12px; }
+    .pair .swap { justify-self: center; transform: rotate(90deg); }
+    .pair .swap.spin { transform: rotate(270deg); }
+    .btn-secondary { width: 96px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo" aria-hidden="true">$</div>
+    <div class="brand-name">Currency<span>Flow</span></div>
+  </div>
+  <div class="tag">SAMPLE RATES</div>
+</header>
+
+<main>
+  <form class="card" id="converter" novalidate autocomplete="off">
+    <label for="amount">Amount</label>
+    <div class="field amount-field" id="amountField">
+      <input id="amount" type="text" inputmode="decimal" placeholder="0.00" aria-describedby="error">
+      <span class="amount-code" id="amountCode">USD</span>
+    </div>
+
+    <div class="pair">
+      <div>
+        <label for="fromCurrency">From</label>
+        <div class="field select-wrap"><select id="fromCurrency"></select></div>
+      </div>
+      <button type="button" class="swap" id="swapButton" aria-label="Swap currencies">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2F6BFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 8h15M15 4l4 4-4 4"/><path d="M20 16H5M9 12l-4 4 4 4"/>
+        </svg>
+      </button>
+      <div>
+        <label for="toCurrency">To</label>
+        <div class="field select-wrap"><select id="toCurrency"></select></div>
+      </div>
+    </div>
+
+    <div class="error" id="error" role="alert" aria-live="polite"></div>
+
+    <div class="actions">
+      <button type="submit" class="btn btn-primary" id="convertButton">Convert</button>
+      <button type="button" class="btn btn-secondary" id="clearButton">Clear</button>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <div class="result-caption" id="resultCaption">Converted amount</div>
+      <div class="result-row">
+        <span class="result-amount" id="resultAmount">0.00</span>
+        <span class="result-code" id="resultCode">NGN</span>
+      </div>
+      <div class="result-rate" id="resultRate">Enter an amount and press Convert.</div>
+    </section>
+
+    <p class="note">Sample rates for demonstration only. They are illustrative and are not live market rates.</p>
+  </form>
+</main>
+
+<footer>CurrencyFlow &bull; Student Project &bull; Built by Bayode Philip Sunday</footer>
+
+<script>
+/* =====================================================================
+   CurrencyFlow - how the conversion works
+   ---------------------------------------------------------------------
+   We keep ONE rate per currency, measured against a base currency (USD).
+   A rate means: "how many units of this currency equal 1 USD?".
+
+       amountInBase = amount / rate[from]        (source -> USD)
+       result       = amountInBase * rate[to]    (USD -> target)
+
+   With n currencies we store n rates instead of n*(n-1) pair rates,
+   and every conversion is two look-ups and two operations: O(1).
+
+   THE RATES BELOW ARE ILLUSTRATIVE SAMPLES, NOT LIVE MARKET RATES.
+   Edit them freely.
+   ===================================================================== */
+
+/* ---------- SECTION 1: settings (edit these) ---------- */
+const BASE_CURRENCY = "USD";
+const RATES_PER_BASE = { USD: 1, NGN: 1500, GBP: 0.79, EUR: 0.92 };
+const CURRENCY_NAMES = { NGN: "Naira", USD: "US Dollar", GBP: "British Pound", EUR: "Euro" };
+const DISPLAY_ORDER = ["NGN", "USD", "GBP", "EUR"];
+const MAX_AMOUNT = 1e9;   // one billion keeps every cent exact in JavaScript numbers
+
+/* ---------- SECTION 2: conversion logic (no page code here) ---------- */
+
+// Check the typed text. Returns { ok: true, value } or { ok: false, message }.
+function parseAmount(text) {
+  const fail = (message) => ({ ok: false, message });
+  const cleaned = String(text).replace(/[\s,]/g, "");      // allow "1,500.50"
+  if (cleaned === "") return fail("Please enter an amount to convert.");
+  if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(cleaned)) {
+    return fail("That doesn't look like a number. Try something like 2500.50.");
+  }
+  const value = Number(cleaned);
+  if (value < 0) return fail("The amount cannot be negative.");
+  if (value === 0) return fail("The amount must be greater than zero.");
+  if (value > MAX_AMOUNT) return fail("That amount is too large. Please use a smaller number.");
+  return { ok: true, value };
+}
+
+function getRate(code, rates) {
+  if (!(code in rates)) throw new Error("No exchange rate is available for " + code + ".");
+  const rate = Number(rates[code]);
+  if (!(rate > 0)) throw new Error("The rate for " + code + " must be greater than zero.");
+  return rate;
+}
+
+// Convert THROUGH THE BASE CURRENCY. Returns the unrounded answer.
+function convert(amount, fromCode, toCode, rates = RATES_PER_BASE) {
+  const rateFrom = getRate(fromCode, rates);
+  const rateTo = getRate(toCode, rates);
+  const amountInBase = amount / rateFrom;   // step 1: source -> base
+  return amountInBase * rateTo;             // step 2: base -> target
+}
+
+// Round to 2 decimal places, halves round UP (so 0.005 becomes 0.01).
+function roundMoney(value) {
+  return Number(Math.round(Number(value.toFixed(10) + "e2")) + "e-2");
+}
+
+function formatMoney(value) {
+  return roundMoney(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// 1500 -> "1,500.00"   0.000667 -> "0.000667"
+function formatRate(rate) {
+  const text = rate < 1
+    ? rate.toLocaleString("en-US", { minimumFractionDigits: 6, maximumFractionDigits: 6 })
+    : rate.toLocaleString("en-US", { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+  const parts = text.split(".");
+  let fraction = parts[1].replace(/0+$/, "");
+  while (fraction.length < 2) fraction += "0";
+  return parts[0] + "." + fraction;
+}
+
+/* ---------- SECTION 3: the page (only runs in a browser) ---------- */
+if (typeof document !== "undefined") {
+  const $ = (id) => document.getElementById(id);
+  const form = $("converter");
+  const amountInput = $("amount");
+  const amountField = $("amountField");
+  const amountCode = $("amountCode");
+  const fromSelect = $("fromCurrency");
+  const toSelect = $("toCurrency");
+  const swapButton = $("swapButton");
+  const clearButton = $("clearButton");
+  const errorBox = $("error");
+  const resultCaption = $("resultCaption");
+  const resultAmount = $("resultAmount");
+  const resultCode = $("resultCode");
+  const resultRate = $("resultRate");
+
+  let resultVisible = false;   // true once a conversion is on screen
+  let animationId = null;
+
+  // Fill both drop-downs: "NGN - Naira", "USD - US Dollar", ...
+  for (const select of [fromSelect, toSelect]) {
+    for (const code of DISPLAY_ORDER) {
+      const option = document.createElement("option");
+      option.value = code;
+      option.textContent = code + " - " + CURRENCY_NAMES[code];
+      select.appendChild(option);
+    }
+  }
+  fromSelect.value = "USD";
+  toSelect.value = "NGN";
+
+  function showError(message) {
+    errorBox.textContent = message;
+    amountField.classList.add("invalid");
+    amountInput.setAttribute("aria-invalid", "true");
+  }
+
+  function clearError() {
+    errorBox.textContent = "";
+    amountField.classList.remove("invalid");
+    amountInput.removeAttribute("aria-invalid");
+  }
+
+  function updateCodes() {
+    amountCode.textContent = fromSelect.value;
+    if (!resultVisible) resultCode.textContent = toSelect.value;
+  }
+
+  // Count the number up to the answer (skipped if the user prefers less motion).
+  function animateResult(target) {
+    if (animationId !== null) cancelAnimationFrame(animationId);
+    const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) { resultAmount.textContent = formatMoney(target); return; }
+    const duration = 350;
+    const start = performance.now();
+    function frame(now) {
+      const fraction = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - fraction, 3);
+      resultAmount.textContent = formatMoney(fraction === 1 ? target : target * eased);
+      animationId = fraction < 1 ? requestAnimationFrame(frame) : null;
+    }
+    animationId = requestAnimationFrame(frame);
+  }
+
+  function doConvert() {
+    clearError();
+    const parsed = parseAmount(amountInput.value);
+    if (!parsed.ok) { showError(parsed.message); return; }
+
+    const fromCode = fromSelect.value;
+    const toCode = toSelect.value;
+    let exact, unitRate;
+    try {
+      exact = convert(parsed.value, fromCode, toCode);
+      unitRate = convert(1, fromCode, toCode);
+    } catch (error) {
+      showError(error.message);
+      return;
+    }
+    resultVisible = true;
+    resultCaption.textContent = formatMoney(parsed.value) + " " + fromCode + " equals";
+    resultCode.textContent = toCode;
+    resultAmount.classList.add("ready");
+    resultRate.textContent = "1 " + fromCode + " = " + formatRate(unitRate) + " " + toCode;
+    animateResult(roundMoney(exact));
+  }
+
+  function resetResult() {
+    if (animationId !== null) { cancelAnimationFrame(animationId); animationId = null; }
+    resultVisible = false;
+    resultCaption.textContent = "Converted amount";
+    resultAmount.textContent = "0.00";
+    resultAmount.classList.remove("ready");
+    resultRate.textContent = "Enter an amount and press Convert.";
+    resultCode.textContent = toSelect.value;
+  }
+
+  function doClear() {
+    amountInput.value = "";
+    clearError();
+    resetResult();
+    amountInput.focus();
+  }
+
+  function currencyChanged() {
+    updateCodes();
+    if (resultVisible) doConvert();
+  }
+
+  form.addEventListener("submit", (event) => { event.preventDefault(); doConvert(); });
+  clearButton.addEventListener("click", doClear);
+  amountInput.addEventListener("input", clearError);
+  fromSelect.addEventListener("change", currencyChanged);
+  toSelect.addEventListener("change", currencyChanged);
+  swapButton.addEventListener("click", () => {
+    const oldFrom = fromSelect.value;
+    fromSelect.value = toSelect.value;
+    toSelect.value = oldFrom;
+    swapButton.classList.toggle("spin");
+    currencyChanged();
+  });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") doClear(); });
+
+  updateCodes();
+  amountInput.focus();
+}
+</script>
+</body>
+</html>
